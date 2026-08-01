@@ -11,7 +11,7 @@ Full audited design (flowchart, guardrails, risks, effort): [docs/plan.md](docs/
 
 - [x] Plan (audited, apply-first order confirmed 2026-08-01)
 - [x] Spike 0 — validation tests (2026-08-01): scheduled run drove Chrome ✓, Luma session cookie survives ✓, login = Google-linked ishamishra041996@gmail.com ✓. Open: phone-push receipt confirmation, Chrome-closed cold start, page-hydration settle before reads. Scheduled runs can fire late (observed +23 min) — fine for weekly cadence.
-- [ ] Session 1 — cron + discovery + drafting + keep/cancel notification
+- [x] Session 1 (2026-08-01) — recurring Friday 6pm scheduled task `luma-hackathon-scout` (reads prompts/scout.md), discovery via Chrome + Luma network JSON + web search, drafting from profile.md, always-notify push. Friday 5:55pm Calendar.app reminder added ("keep laptop + Chrome on"). Pending: Isha fills profile.md, first shakedown run.
 - [ ] Session 2 — Chrome auto-register flow + calendar write + summary
 - [ ] Hardening — Fridays of tuning
 
