@@ -1,0 +1,26 @@
+# EverythingHackathon
+
+Automated Luma hackathon autopilot: every Friday 6 pm a local Claude scheduled agent discovers
+hackathons (Agent Memory, Evals, Retrieval, Tool Calling) in SF / Palo Alto / Mountain View /
+Cupertino, auto-registers for free events via Isha's logged-in Chrome, then asks her by phone to
+keep or cancel each registration. Kept events land on her calendar.
+
+Full audited design (flowchart, guardrails, risks, effort): [docs/plan.md](docs/plan.md).
+
+## Status
+
+- [x] Plan (audited, apply-first order confirmed 2026-08-01)
+- [ ] Spike 0 — 3 validation tests (Chrome-from-scheduled-run, phone approval round trip, Luma post-registration behavior)
+- [ ] Session 1 — cron + discovery + drafting + keep/cancel notification
+- [ ] Session 2 — Chrome auto-register flow + calendar write + summary
+- [ ] Hardening — Fridays of tuning
+
+## Layout (planned)
+
+```
+docs/plan.md      audited design doc
+profile.md        Isha's application-answer profile (never committed with private data — gitignored if sensitive)
+prompts/          scout + executor prompts for the scheduled runs
+state/            weekly state.json lives locally, NOT committed
+scripts/          setup helpers (pmset wake schedule, scheduled-task creation)
+```
