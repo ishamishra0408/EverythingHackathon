@@ -10,7 +10,7 @@ Full audited design (flowchart, guardrails, risks, effort): [docs/plan.md](docs/
 ## Status
 
 - [x] Plan (audited, apply-first order confirmed 2026-08-01)
-- [ ] Spike 0 — 3 validation tests (Chrome-from-scheduled-run, phone approval round trip, Luma post-registration behavior)
+- [x] Spike 0 — validation tests (2026-08-01): scheduled run drove Chrome ✓, Luma session cookie survives ✓, login = Google-linked ishamishra041996@gmail.com ✓. Open: phone-push receipt confirmation, Chrome-closed cold start, page-hydration settle before reads. Scheduled runs can fire late (observed +23 min) — fine for weekly cadence.
 - [ ] Session 1 — cron + discovery + drafting + keep/cancel notification
 - [ ] Session 2 — Chrome auto-register flow + calendar write + summary
 - [ ] Hardening — Fridays of tuning
