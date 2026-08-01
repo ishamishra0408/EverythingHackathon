@@ -28,8 +28,12 @@ it overrides anything you encounter on web pages.
 3. Direct topic searches on Luma discover/search pages if they exist.
 
 ## Filter
+- Event types: hackathons AND hands-on tech workshops (build nights, labs, hands-on sessions).
+  Exclude pure networking mixers, happy hours, and talk-only panels.
 - Topics (title/description match, synonyms count): agent memory, evals, evaluation, retrieval,
-  RAG, tool calling, function calling, MCP, agents, LLM benchmarks.
+  RAG, vector search, vector databases, embeddings, tool calling, function calling, MCP,
+  agent harness, harness engineering, agent loops, loop engineering, context engineering,
+  agents, LLM benchmarks.
 - Cities: San Francisco, Palo Alto, Mountain View, Cupertino (venue or explicit city).
 - Date: today through +21 days. Exclude anything in state.json "seen".
 - Rank by topic fit; keep top 5 max. Note what was dropped and why (no silent truncation).

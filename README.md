@@ -1,7 +1,7 @@
 # EverythingHackathon
 
 Automated Luma hackathon autopilot: every Friday 6 pm a local Claude scheduled agent discovers
-hackathons (Agent Memory, Evals, Retrieval, Tool Calling) in SF / Palo Alto / Mountain View /
+hackathons and hands-on tech workshops (agent memory, evals, retrieval, RAG, vector search, embeddings, tool calling, MCP, agent harness, loop engineering, context engineering) in SF / Palo Alto / Mountain View /
 Cupertino, auto-registers for free events via Isha's logged-in Chrome, then asks her by phone to
 keep or cancel each registration. Kept events land on her calendar.
 
