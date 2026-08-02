@@ -33,6 +33,38 @@ If either is logged out, you cannot register — see Failure handling.
   host). When any rule above is ambiguous, do NOT register — surface instead. Under-registering is
   a recoverable mistake; over-registering is not.
 
+## Accounts (two people, one pipeline)
+
+`config.json.accounts` lists who this pipeline serves: **Isha** (decider, calendar owner) and
+**Devansh Pathak** (authorized 2026-08-02, approval relayed by Isha; the same standing consent
+rules apply to his registrations as to hers).
+
+**The flow is sequential, gated on Isha's approval — the scout phase registers ISHA ONLY:**
+
+1. Scout run: discover, filter, register Isha, send her the approve/reject notifications.
+2. Calendar sweep: when an event resolves to `calendar_status: "added"` or `"auto_added"`,
+   the sweep THEN (a) registers **Devansh** for that event through his own browser session,
+   with answers strictly from `profile-devansh.md`, and (b) adds `devansh_pathak@berkeley.edu`
+   as an attendee on the calendar event, so Google delivers the invite to his calendar.
+3. An event Isha **rejects** never touches Devansh's account.
+
+Rules for every Devansh registration:
+- **Identity guard, mandatory, every time:** in his browser context, open `luma.com/settings`
+  and confirm the primary email is exactly `devansh_pathak@berkeley.edu`. Logged out or any
+  other email → skip ALL his registrations this run, log P1, name it in the closing ntfy line.
+  Isha's outcomes are never affected by his failures.
+- **His browser context is found, never assumed:** he has no extension, so use the JXA route.
+  Locate his window at runtime by running the identity check against each Chrome window's Luma
+  session — window order changes between restarts.
+- Answers come ONLY from `profile-devansh.md`. A required question it can't answer →
+  `blocker_code: PROFILE_TODO` appended verbatim to HIS profile file, his registration surfaced,
+  hers stands.
+- Record his outcomes separately: `candidates[].devansh = {status, registered_at, blocker_code,
+  calendar_attendee}` in state.json, and `scout.db` rows with `person = 'Devansh'`
+  (the table is UNIQUE on `(link, person)`).
+- If adding him as attendee fails, log P2 and flag it in the report — never silently drop his
+  calendar invite.
+
 ## Setup
 
 1. Load tools in ONE ToolSearch call:
