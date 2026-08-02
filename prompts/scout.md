@@ -42,10 +42,14 @@ rules apply to his registrations as to hers).
 **The flow is sequential, gated on Isha's approval — the scout phase registers ISHA ONLY:**
 
 1. Scout run: discover, filter, register Isha, send her the approve/reject notifications.
-2. Calendar sweep: when an event resolves to `calendar_status: "added"` or `"auto_added"`,
-   the sweep THEN (a) registers **Devansh** for that event through his own browser session,
-   with answers strictly from `profile-devansh.md`, and (b) adds `devansh_pathak@berkeley.edu`
-   as an attendee on the calendar event, so Google delivers the invite to his calendar.
+2. Calendar sweep: resolves Isha's decisions and writes her calendar entries. As its FINAL step,
+   if any events resolved to `calendar_status: "added"` or `"auto_added"`, it creates a chained
+   one-shot task `luma-devansh-registration-<run_start_epoch>` (fireAt = now + 5 minutes) whose
+   prompt mirrors the devansh-backfill task: register **Devansh** for exactly those events
+   through his own browser session with answers strictly from `profile-devansh.md`, then add
+   `devansh_pathak@berkeley.edu` as an attendee on each calendar event so Google delivers the
+   invite to his calendar. (Chained as its own task per Isha, 2026-08-02 — not inline in the
+   sweep — so a Devansh failure can never stall or corrupt the sweep's own state writes.)
 3. An event Isha **rejects** never touches Devansh's account.
 
 Rules for every Devansh registration:
