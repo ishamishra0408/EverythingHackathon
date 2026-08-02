@@ -106,8 +106,10 @@ URL-ish strings — return counts first, then page results in slices of ~6.
 - **Topics** (title/description, synonyms count): agent memory, evals, evaluation, retrieval, RAG,
   vector search, vector databases, embeddings, tool calling, function calling, MCP, agent harness,
   harness engineering, agent loops, loop engineering, context engineering, agents, LLM benchmarks.
-- **Cities:** exactly the list in `config.json.cities` — San Francisco, Palo Alto, Mountain View,
-  Sunnyvale, San Jose, Berkeley, Cupertino. Nothing else.
+- **Cities:** exactly the list in `config.json.cities` — San Francisco, Palo Alto, Menlo Park,
+  Mountain View, Sunnyvale, San Jose, Berkeley, Cupertino. Nothing else.
+  *(Menlo Park added by Isha 2026-08-01 after the Snowflake × Beta Fund hackathon was dropped for
+  being there — that class of event now qualifies.)*
   *(Isha named six on 2026-08-01 and omitted Cupertino, which had been in her earlier list. It was
   kept on the assumption the omission was accidental — she has not confirmed either way. Cupertino
   has produced zero events so far, so the assumption costs nothing; drop it if she says so.)* Many Luma events have an EMPTY city
@@ -441,6 +443,25 @@ EOF
      decisions. A run that hit no errors must say so explicitly with a row.
 
    View with: `sqlite3 state/scout.db ".mode box" "SELECT * FROM applications;"`
+
+## Publish to GitHub (mandatory, end of EVERY run — scout and sweep both)
+
+The repo `origin` is https://github.com/ishamishra0408/EverythingHackathon (branch `main`) and it
+is **PUBLIC**. Two consequences, non-negotiable:
+
+1. What gets published is a **sanitized run report**, written to `reports/<YYYY-MM-DD>.md`
+   (committed, unlike `state/weekly/` which stays local): one table row per event this run —
+   date, title, luma URL, city, venue, status (registered / pending approval / surfaced /
+   rejected), lane, `blocker_code`, `calendar_status` — plus the dropped-events list with reasons
+   and any anomalies. The sweep appends a Decisions section to the same file when it resolves them.
+2. **NEVER commit:** drafted answers, any email/handle/PII, `profile.md`, `state/`, `secrets/`,
+   ntfy topics, or the signing secret. The `.gitignore` enforces this — do not weaken it, and if
+   `git status` ever shows one of those paths as staged, ABORT the commit and log a P1 to scout.db.
+
+Steps: `git add -A` → verify staged paths are only `reports/`, `prompts/`, `README.md` →
+`git commit -m "scout run <YYYY-MM-DD>"` → `git push origin main`. If the push fails (offline,
+auth), retry once; on second failure log a P2 to `scout.db` errors and say
+`"report not pushed to GitHub"` in the ntfy summary. Never let a push failure block notifications.
 
 ## Failure handling
 
