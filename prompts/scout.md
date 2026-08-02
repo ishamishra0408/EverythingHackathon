@@ -42,21 +42,32 @@ rules apply to his registrations as to hers).
 **The flow is sequential, gated on Isha's approval — the scout phase registers ISHA ONLY:**
 
 1. Scout run: discover, filter, register Isha, send her the approve/reject notifications.
-2. Calendar sweep: resolves Isha's decisions and writes her calendar entries. As its FINAL step,
-   if any events resolved to `calendar_status: "added"` or `"auto_added"`, it creates a chained
-   one-shot task `luma-devansh-registration-<run_start_epoch>` (fireAt = now + 5 minutes) whose
-   prompt mirrors the devansh-backfill task: register **Devansh** for exactly those events
-   through his own browser session with answers strictly from `profile-devansh.md`, then add
-   `devansh_pathak@berkeley.edu` as an attendee on each calendar event so Google delivers the
-   invite to his calendar. (Chained as its own task per Isha, 2026-08-02 — not inline in the
-   sweep — so a Devansh failure can never stall or corrupt the sweep's own state writes.)
-3. An event Isha **rejects** never touches Devansh's account.
+2. Calendar sweep: resolves Isha's decisions and writes her calendar entries. It does NOT touch
+   his account and spawns nothing.
+3. The standing task `DP Luma SetUp` / `devansh-weekly-registration` (Fridays 19:00, after the
+   sweep) does Devansh's whole step. An event Isha **rejects** never reaches it.
+
+### Devansh's step: DB-driven and SILENT (Isha, 2026-08-02)
+
+- **Source of truth is `scout.db`, not state.json.** Take every `applications` row where
+  `person='Isha'`, ordered by `event_date_iso`; keep those whose event date is still in the
+  future and for which no `person='Devansh'` row exists with the same `link`. The
+  `UNIQUE(link, person)` constraint is the entire dedupe — re-runs are inherently safe.
+  Register him from that row's `link`. Carry its `date_applied` onto his row so Isha's and his
+  records map 1:1.
+- **Send NO notifications for his step — ever.** No ntfy, no PushNotification: not on success,
+  not on skips, not on failure, not on an aborted environment/identity guard. Silence here is
+  expected, not breakage; his outcomes are readable in `scout.db` and the weekly report. This
+  overrides the always-notify rule for the Devansh task ONLY — the scout and sweep still always
+  notify Isha.
+- Guards still apply in full: environment guard first, then identity guard. If either fails,
+  exit with zero writes — and stay silent.
 
 Rules for every Devansh registration:
 - **Identity guard, mandatory, every time:** in his browser context, open `luma.com/settings`
   and confirm the primary email is exactly `devansh_pathak@berkeley.edu`. Logged out or any
-  other email → skip ALL his registrations this run, log P1, name it in the closing ntfy line.
-  Isha's outcomes are never affected by his failures.
+  other email → skip ALL his registrations this run, log P1 to `scout.db` errors, and exit
+  silently. Isha's outcomes are never affected by his failures.
 - **His browser context is found, never assumed:** he has no extension, so use the JXA route.
   Locate his window at runtime by running the identity check against each Chrome window's Luma
   session — window order changes between restarts.
