@@ -71,6 +71,17 @@ Rules for every Devansh registration:
 
 ## Setup
 
+0. **ENVIRONMENT GUARD — run this before anything else, every task, every time.** This pipeline
+   only functions on Isha's Mac (Chrome sessions, Calendar.app, osascript, git credentials).
+   Check, in order: `uname` returns `Darwin`; `osascript -e 'return 1'` succeeds; the repo dir
+   is writable AND `sqlite3 state/scout.db "SELECT 1"` succeeds directly (no /tmp copy
+   workarounds — if the DB can't be opened in place, the environment is wrong).
+   **If ANY check fails: send the ntfy summary `"Run aborted: wrong environment (<which check>)"`
+   if secrets are readable (skip silently if not), then EXIT with ZERO writes** — no state.json
+   changes, no scout.db writes, no report edits, no git commits, no workarounds. A sandboxed or
+   cloud session must leave no trace. (Added 2026-08-02 after a cloud-sandbox run half-executed
+   with a /tmp SQLite workaround and an unpushable commit.)
+
 1. Load tools in ONE ToolSearch call:
    `"select:mcp__claude-in-chrome__tabs_context_mcp,mcp__claude-in-chrome__navigate,mcp__claude-in-chrome__read_page,mcp__claude-in-chrome__get_page_text,mcp__claude-in-chrome__javascript_tool,mcp__claude-in-chrome__find,mcp__claude-in-chrome__computer,mcp__claude-in-chrome__form_input,PushNotification,WebSearch,mcp__scheduled-tasks__create_scheduled_task"`
 2. Read `state/state.json`, `state/config.json` (topics, timeout, cities, calendar name), and
