@@ -107,7 +107,10 @@ URL-ish strings — return counts first, then page results in slices of ~6.
   vector search, vector databases, embeddings, tool calling, function calling, MCP, agent harness,
   harness engineering, agent loops, loop engineering, context engineering, agents, LLM benchmarks.
 - **Cities:** exactly the list in `config.json.cities` — San Francisco, Palo Alto, Mountain View,
-  Sunnyvale, San Jose, Berkeley, Cupertino. Nothing else. Many Luma events have an EMPTY city
+  Sunnyvale, San Jose, Berkeley, Cupertino. Nothing else.
+  *(Isha named six on 2026-08-01 and omitted Cupertino, which had been in her earlier list. It was
+  kept on the assumption the omission was accidental — she has not confirmed either way. Cupertino
+  has produced zero events so far, so the assumption costs nothing; drop it if she says so.)* Many Luma events have an EMPTY city
   field — fall back to the venue address string before dropping (Frontier Tower resolves to San
   Francisco only via its address).
 - **Dates:** scan `run_start` → +21 days.
@@ -129,14 +132,20 @@ Re-evaluation must be mechanical, not a judgement call. Every surfaced candidate
 `blocker_code`; on re-evaluation, re-derive the code and compare:
 | `blocker_code` | Meaning | On re-evaluation |
 |---|---|---|
-| `WINDOW` | Was bonus (day 8–21) | Re-check — this clears on its own as the date nears |
-| `PROFILE_TODO` | A required answer was missing from profile.md | Re-check — clears when Isha fills the TODO |
-| `MARKETING` | Required or bundled newsletter opt-in | Permanent. Skip, never retry |
-| `CONTACT_SHARING` | Required third-party contact-sharing consent | Permanent. Skip, never retry |
-| `PAID` | Not free | Permanent unless the price changes |
-| `CONFLICT` | Clashed with an already-registered event | Re-check |
+| `PROFILE_TODO` | A required question is not answerable from profile.md | Re-check — clears when Isha fills the TODO |
+| `PAID` | Not free | Re-check — clears only if the price changes |
+| `WALL` | Unsubmittable (invite code / private link) or a CAPTCHA appeared | Re-check — hosts often open these later |
 | `REG_FAILED` | Submission failed mid-form | Re-check, once |
-Only skip when the freshly derived code is identical AND is a permanent one.
+
+There are **no permanent blockers.** Re-evaluate every `seen_surfaced` event on every run; skip it
+only if the freshly derived code is identical to the stored one, and even then re-check `PROFILE_TODO`
+and `WALL` because both clear over time without anything changing on our side.
+
+**Retired codes — do NOT re-introduce these.** `MARKETING` and `CONTACT_SHARING` were blockers until
+2026-08-01, when Isha ruled that unavoidable marketing is accepted and consented to sponsor
+contact-sharing. `WINDOW` and `CONFLICT` were retired the same day: registration is window-agnostic,
+and clashes are registered anyway and flagged for her to resolve. If you find yourself assigning any
+of these four, the gate logic is wrong.
 
 Never write a merely-observed event into `seen_registered`. A `registration_failed` event stays in
 `seen_surfaced` so it can be retried next week.
@@ -201,6 +210,24 @@ disqualify most events worth attending. Only an unsubmittable wall (invite code 
 required) blocks you. For `approval-required` events, prefix the calendar summary with
 `[pending approval]` so Isha can see at a glance that her seat is requested, not confirmed.
 
+## Invitations (run this every time, alongside discovery)
+
+Isha gets personally invited to events. These bypass discovery entirely but face the same tests.
+
+1. Navigate to `https://luma.com/home`. It renders client-side — **wait ~6s**, then scrape the DOM
+   (`a[href^="/"]` slugs); its `__NEXT_DATA__` is empty.
+2. For each card whose status reads **Invited**, open the event and apply the normal Filter tests:
+   on-topic, right event type, in a target city, in person. Skip virtual events and formats she
+   excludes (demo nights, showcases) — log the reason, do not silently drop.
+3. For a qualifying invite, click **Accept Invite** and fill the required fields from `profile.md`
+   exactly as in the Registration phase. Everything in the consent rules applies unchanged.
+4. Treat an accepted invite as a registration: write the `applications` row, add the id to
+   `seen_registered`, and send it a signed approve/reject notification like any other event.
+5. Cards already marked **Going** are done — never re-accept.
+
+Verified 2026-08-01: this found *WorkOS Agent Night*, formerly MCP Night, which discovery had missed
+entirely. Invitations are a real source, not a nicety.
+
 ## Registration (the apply phase)
 
 For each `auto-apply-ready` event, in ascending date order:
@@ -261,11 +288,14 @@ token = HMAC-SHA256(decision_signing_secret, "<evt-id>:<run_start_epoch>")[:16]
 body  = "approve:<evt-id>:<token>"   (or "reject:<evt-id>:<token>")
 ```
 
-**One notification per registered event**, body in exactly this format:
+**One notification per registered event**, body in exactly this format — the same
+`DD-Month-YYYY` Isha uses in the applications table, so the two never disagree:
 
 ```
-<YYYY-MM-DD> - <Event Name>
+<DD-Month-YYYY> - <Event Name>
 ```
+
+e.g. `18-August-2026 - The Agent Harness Workshop`
 
 Send with approve/reject buttons (verified working — buttons POST straight to the decision topic,
 so no server is needed):
